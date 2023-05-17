@@ -11,7 +11,7 @@ import async_timeout
 import voluptuous as vol
 
 from homeassistant.components import camera
-from homeassistant.const import ATTR_NAME, CONF_API_KEY, CONF_TIMEOUT, CONTENT_TYPE_JSON
+from homeassistant.const import ATTR_NAME, CONF_API_KEY, CONF_ENDPOINT, CONF_TIMEOUT, CONTENT_TYPE_JSON
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -32,7 +32,7 @@ DATA_MICROSOFT_FACE = "microsoft_face"
 DEFAULT_TIMEOUT = 10
 DOMAIN = "microsoft_face"
 
-FACE_API_URL = "api.cognitive.microsoft.com/face/v1.0/{0}"
+
 
 SERVICE_CREATE_GROUP = "create_group"
 SERVICE_CREATE_PERSON = "create_person"
@@ -46,6 +46,7 @@ CONFIG_SCHEMA = vol.Schema(
         DOMAIN: vol.Schema(
             {
                 vol.Required(CONF_API_KEY): cv.string,
+                vol.Required(CONF_ENDPOINT); cv.string,
                 vol.Optional(CONF_AZURE_REGION, default="westus"): cv.string,
                 vol.Optional(CONF_TIMEOUT, default=DEFAULT_TIMEOUT): cv.positive_int,
             }
@@ -77,6 +78,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     face = MicrosoftFace(
         hass,
         config[DOMAIN].get(CONF_AZURE_REGION),
+        config[DOMAIN].get(CONF_ENDPOINT),
         config[DOMAIN].get(CONF_API_KEY),
         config[DOMAIN].get(CONF_TIMEOUT),
         entities,
@@ -250,7 +252,7 @@ class MicrosoftFace:
         self.websession = async_get_clientsession(hass)
         self.timeout = timeout
         self._api_key = api_key
-        self._server_url = f"https://{server_loc}.{FACE_API_URL}"
+        self._server_url = f"https://{CONF_ENDPOINT}"
         self._store = {}
         self._entities = entities
 
